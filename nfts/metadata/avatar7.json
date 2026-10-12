@@ -1,0 +1,12 @@
+{
+  "name": "CipherSentinel",
+  "description": "A cyberpunk blockchain security auditor.",
+  "image": "ipfs://IMAGE_CID",
+  "attributes": [
+    { "trait_type": "Role", "value": "Auditor" },
+    { "trait_type": "Network", "value": "Ethereum" },
+    { "trait_type": "Eyes", "value": "Normal" },
+    { "trait_type": "Headgear", "value": "Visor" },
+    { "trait_type": "Rarity", "value": "Common" }
+  ]
+}

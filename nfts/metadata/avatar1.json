@@ -1,0 +1,12 @@
+{
+  "name": "NeonForger",
+  "description": "A cyberpunk Web3 builder shaping the decentralized future.",
+  "image": "ipfs://IMAGE_CID",
+  "attributes": [
+    { "trait_type": "Role", "value": "Builder" },
+    { "trait_type": "Network", "value": "Ethereum" },
+    { "trait_type": "Eyes", "value": "Glowing" },
+    { "trait_type": "Headgear", "value": "None" },
+    { "trait_type": "Rarity", "value": "Common" }
+  ]
+}

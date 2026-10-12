@@ -1,0 +1,12 @@
+{
+  "name": "Oracle Veil",
+  "description": "A mysterious oracle reading on-chain truths.",
+  "image": "ipfs://IMAGE_CID",
+  "attributes": [
+    { "trait_type": "Role", "value": "Oracle" },
+    { "trait_type": "Network", "value": "Ethereum" },
+    { "trait_type": "Eyes", "value": "Glowing" },
+    { "trait_type": "Headgear", "value": "Hood" },
+    { "trait_type": "Rarity", "value": "Rare" }
+  ]
+}

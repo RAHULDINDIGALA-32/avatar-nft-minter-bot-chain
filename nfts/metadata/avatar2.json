@@ -1,0 +1,12 @@
+{
+  "name": "Blockwarden",
+  "description": "A cyberpunk validator securing the blockchain.",
+  "image": "ipfs://IMAGE_CID_2",
+  "attributes": [
+    { "trait_type": "Role", "value": "Validator" },
+    { "trait_type": "Network", "value": "Ethereum" },
+    { "trait_type": "Eyes", "value": "Neon" },
+    { "trait_type": "Headgear", "value": "Helmet" },
+    { "trait_type": "Rarity", "value": "Rare" }
+  ]
+}

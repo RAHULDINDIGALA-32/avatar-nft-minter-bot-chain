@@ -1,0 +1,12 @@
+{
+  "name": "DAOmnarch",
+  "description": "A DAO strategist governing decentralized systems.",
+  "image": "ipfs://IMAGE_CID",
+  "attributes": [
+    { "trait_type": "Role", "value": "DAO Strategist" },
+    { "trait_type": "Network", "value": "Ethereum" },
+    { "trait_type": "Eyes", "value": "Neon" },
+    { "trait_type": "Headgear", "value": "None" },
+    { "trait_type": "Rarity", "value": "Rare" }
+  ]
+}

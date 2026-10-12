@@ -1,0 +1,12 @@
+{
+  "name": "DeFi Nexus",
+  "description": "A DeFi architect designing decentralized finance.",
+  "image": "ipfs://IMAGE_CID",
+  "attributes": [
+    { "trait_type": "Role", "value": "DeFi Architect" },
+    { "trait_type": "Network", "value": "Ethereum" },
+    { "trait_type": "Eyes", "value": "Neon" },
+    { "trait_type": "Headgear", "value": "None" },
+    { "trait_type": "Rarity", "value": "Rare" }
+  ]
+}

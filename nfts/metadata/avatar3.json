@@ -1,0 +1,12 @@
+{
+  "name": "PulseTrader",
+  "description": "A high-speed cyberpunk crypto trader.",
+  "image": "ipfs://IMAGE_CID",
+  "attributes": [
+    { "trait_type": "Role", "value": "Trader" },
+    { "trait_type": "Network", "value": "Ethereum" },
+    { "trait_type": "Eyes", "value": "Neon" },
+    { "trait_type": "Headgear", "value": "Visor" },
+    { "trait_type": "Rarity", "value": "Common" }
+  ]
+}

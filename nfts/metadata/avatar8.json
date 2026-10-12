@@ -1,0 +1,12 @@
+{
+  "name": "GasRift",
+  "description": "A gas optimizer pushing blockchain efficiency.",
+  "image": "ipfs://IMAGE_CID",
+  "attributes": [
+    { "trait_type": "Role", "value": "Gas Optimizer" },
+    { "trait_type": "Network", "value": "Ethereum" },
+    { "trait_type": "Eyes", "value": "Glowing" },
+    { "trait_type": "Headgear", "value": "Helmet" },
+    { "trait_type": "Rarity", "value": "Rare" }
+  ]
+}

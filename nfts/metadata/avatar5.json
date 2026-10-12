@@ -1,0 +1,12 @@
+{
+  "name": "HexSmith",
+  "description": "A smart contract engineer coding the future.",
+  "image": "ipfs://IMAGE_CID",
+  "attributes": [
+    { "trait_type": "Role", "value": "Engineer" },
+    { "trait_type": "Network", "value": "Ethereum" },
+    { "trait_type": "Eyes", "value": "Glowing" },
+    { "trait_type": "Headgear", "value": "None" },
+    { "trait_type": "Rarity", "value": "Common" }
+  ]
+}
