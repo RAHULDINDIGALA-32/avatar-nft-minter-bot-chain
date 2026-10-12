@@ -1,23 +1,29 @@
 {
   "name": "nft-minter",
   "version": "1.0.0",
-  "description": "An Ethereum DApp with Next.js, Wagmi, RainbowKit, and Pinata to Mint NFTs on IPFS",
+  "description": "A DApp on Bot Chain with Next.js, Wagmi, RainbowKit, and Pinata to Mint NFTs on IPFS",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "compile": "hardhat compile && node scripts/exportArtifact.mjs",
+    "upload": "node scripts/uploadToPinata.mjs",
+    "deploy:testnet": "tsx scripts/deployAvatarNft.ts botTestnet",
+    "deploy:mainnet": "tsx scripts/deployAvatarNft.ts botMainnet",
+    "register:testnet": "node scripts/registerCollection.mjs botTestnet",
+    "register:mainnet": "node scripts/registerCollection.mjs botMainnet",
+    "test": "hardhat test"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/RAHULDINDIGALA-32/nft-minter.git"
+    "url": "git+https://github.com/RAHULDINDIGALA-32/avatar-nft-minter-bot-chain.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "bugs": {
-    "url": "https://github.com/RAHULDINDIGALA-32/nft-minter/issues"
+    "url": "https://github.com/RAHULDINDIGALA-32/avatar-nft-minter-bot-chain/issues"
   },
-  "homepage": "https://github.com/RAHULDINDIGALA-32/nft-minter#readme",
+  "homepage": "https://github.com/RAHULDINDIGALA-32/avatar-nft-minter-bot-chain#readme",
   "dependencies": {
     "@openzeppelin/contracts": "^5.4.0",
     "axios": "^1.13.2",
@@ -27,9 +33,11 @@
     "viem": "^2.42.1"
   },
   "devDependencies": {
+    "hardhat": "^2.22.18",
     "@types/node": "^25.0.2",
     "ts-node": "^10.9.2",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "tsx": "^4.19.2"
   },
   "types": "module"
 }

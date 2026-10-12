@@ -6,30 +6,14 @@ import {
   getDefaultConfig,
   darkTheme,
 } from '@rainbow-me/rainbowkit';
-import {
-  arbitrum,
-  base,
-  mainnet,
-  optimism,
-  polygon,
-  sepolia,
-} from 'wagmi/chains';
-//import dotenv from "dotenv";
-
-
-//dotenv.config();
+import { defineChain } from 'viem';
+export const botTestnet = defineChain({ id: 968, name: 'BOT Chain Testnet', nativeCurrency: { name: 'BOT', symbol: 'BOT', decimals: 18 }, rpcUrls: { default: { http: ['https://rpc.bohr.life'] } }, blockExplorers: { default: { name: 'BOTScan', url: 'https://scan.bohr.life' } } });
+export const botMainnet = defineChain({ id: 677, name: 'BOT Chain', nativeCurrency: { name: 'BOT', symbol: 'BOT', decimals: 18 }, rpcUrls: { default: { http: ['https://rpc.botchain.ai'] } }, blockExplorers: { default: { name: 'BOTScan', url: 'https://scan.botchain.ai' } } });
 
 const config = getDefaultConfig({
-  appName: 'RainbowKit App',
-  projectId: 'YOUR_PROJECT_ID',
-  chains: [
-    mainnet,
-    polygon,
-    optimism,
-    arbitrum,
-    base,
-    sepolia,
-  ],
+  appName: 'BOT Avatar NFT',
+  projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID ?? '00000000000000000000000000000000',
+  chains: [botTestnet, botMainnet],
   ssr: true,
 });
 
@@ -42,7 +26,7 @@ const WagmiProviderWrapper = ({ children }: { children: React.ReactNode }) => {
         <RainbowKitProvider
           modalSize="wide"
           theme={darkTheme()}
-          initialChain={ sepolia }
+          initialChain={botTestnet}
         >
           {children}
         </RainbowKitProvider>

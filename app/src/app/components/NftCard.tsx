@@ -1,17 +1,18 @@
-import { useReadContract } from 'wagmi';
-import AvatarNft from '../../../contractDeployments/AvatarNft.Sepolia.json';
 import type { NftCardProps } from '../types.ts';
+import { ipfsToHttp } from '../lib/ipfs';
+import { useChainId, useReadContract } from 'wagmi';
+import { avatarNftAbi, deployments } from '../config/avatarNft';
 
 export default function NFTCard({ nft, isConnected, address, onSelect }: NftCardProps) {
-  const { data: owner } = useReadContract({
-    address: AvatarNft.address as `0x${string}`,
-    abi: AvatarNft.abi,
-    functionName: 'ownerOf',
+  const chainId = useChainId();
+  const deployment = deployments[chainId];
+  const { data: minted } = useReadContract({
+    address: deployment?.address,
+    abi: avatarNftAbi,
+    functionName: 'minted',
     args: [BigInt(nft.tokenId)],
+    query: { enabled: Boolean(deployment?.address) },
   });
-
-  const isMinted = !!owner;
-  const isOwnedByUser = (isConnected && typeof owner === 'string' && typeof address === 'string' && owner.toLowerCase() === address.toLowerCase());
 
   return (
     // <div
@@ -33,14 +34,15 @@ export default function NFTCard({ nft, isConnected, address, onSelect }: NftCard
     //     </span>
     //   )}
 
-<div className="relative cursor-pointer rounded-2xl overflow-hidden border transition-all hover:scale-105"
+<div className={`relative cursor-pointer rounded-2xl overflow-hidden border transition-all hover:scale-105 ${minted ? 'opacity-60' : ''}`}
 onClick={() => onSelect(nft)}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={nft.image} alt={nft.name} className="w-full h-64 object-cover" />
+      <img src={ipfsToHttp(nft.image)} alt={nft.name} className="w-full h-64 object-cover" />
 
       <div className="p-4 bg-black/70 h-full">
         <h3 className="text-lg font-bold">{nft.name}</h3>
         <p className="text-sm text-gray-300">{nft.description}</p>
+        {minted && <p className="text-xs text-emerald-300 mt-2">Already minted</p>}
       </div>
     </div>
   );

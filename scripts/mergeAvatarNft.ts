@@ -19,7 +19,7 @@ const output = {
   bytecode
 };
 
-// Save to artifacts/Smile.json
+// Save to artifacts/AvatarNft.json
 fs.writeFileSync("../artifacts/AvatarNft.json", JSON.stringify(output, null, 2));
 
-console.log("✔ Smile.json created successfully!");
+console.log("✔ AvatarNft.json created successfully!");

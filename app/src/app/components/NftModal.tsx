@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import type { NftModalProps, Attribute } from '../types.ts';
+import { ipfsToHttp } from '../lib/ipfs';
 
 export default function NFTModal({ nft, onMint, onClose, isMinting, isConnected }: NftModalProps) {
   const [showAttributes, setShowAttributes] = useState(false);
@@ -23,7 +24,7 @@ export default function NFTModal({ nft, onMint, onClose, isMinting, isConnected 
             <div className="absolute inset-0 backface-hidden">
               
               <img
-                src={nft.image}
+                src={ipfsToHttp(nft.image)}
                 alt={nft.name}
                 className="w-full h-full object-cover rounded-xl"
               />

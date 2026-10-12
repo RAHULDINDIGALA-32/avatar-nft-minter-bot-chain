@@ -1,93 +1,68 @@
-import fs from "fs";
-import path from "path";
-import axios from "axios";
-import FormData from "form-data";
-import dotenv from "dotenv";
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import process from 'node:process';
+import dotenv from 'dotenv';
 
 dotenv.config();
-
-const PINATA_FILE_URL = "https://api.pinata.cloud/pinning/pinFileToIPFS";
-const PINATA_JSON_URL = "https://api.pinata.cloud/pinning/pinJSONToIPFS";
-
-const IMAGES_DIR = "./nfts/images";
-const METADATA_DIR = "./nfts/metadata";
-
-const headers = {
-  pinata_api_key: process.env.PINATA_API_KEY,
-  pinata_secret_api_key: process.env.PINATA_SECRET_API_KEY
+const root = process.cwd();
+const imagesDir = path.join(root, 'nfts', 'images');
+const metadataDir = path.join(root, 'nfts', 'metadata');
+const generatedFile = path.join(root, 'app', 'src', 'app', 'data', 'nftsData.ts');
+const pinFileUrl = 'https://api.pinata.cloud/pinning/pinFileToIPFS';
+const pinJsonUrl = 'https://api.pinata.cloud/pinning/pinJSONToIPFS';
+const jwt = process.env.PINATA_JWT;
+if (!jwt) throw new Error('Missing PINATA_JWT in .env');
+const authHeaders = () => ({ Authorization: `Bearer ${jwt}` });
+const tokenIdFromName = (name) => {
+  const match = name.match(/(\d+)/);
+  if (!match) throw new Error(`Filename must contain a numeric token id: ${name}`);
+  return Number(match[1]) - 1;
 };
-
-// Upload image to Pinata
-async function uploadImage(filePath) {
-  const data = new FormData();
-  data.append("file", fs.createReadStream(filePath));
-
-  const res = await axios.post(PINATA_FILE_URL, data, {
-    maxBodyLength: Infinity,
-    headers: {
-      ...data.getHeaders(),
-      ...headers
-    }
-  });
-
-  return res.data.IpfsHash;
+const imageFor = (metadataName, imageNames) => {
+  const stem = path.basename(metadataName, '.json');
+  const image = imageNames.find((name) => path.parse(name).name === stem);
+  if (!image) throw new Error(`No image found for ${metadataName}`);
+  return image;
+};
+async function pinFile(filePath, name) {
+  const form = new FormData();
+  form.append('file', new Blob([await fs.readFile(filePath)]), name);
+  form.append('pinataMetadata', JSON.stringify({ name }));
+  const response = await fetch(pinFileUrl, { method: 'POST', headers: authHeaders(), body: form });
+  if (!response.ok) throw new Error(`Pinata file upload failed (${response.status}): ${await response.text()}`);
+  return (await response.json()).IpfsHash;
 }
-
-// Upload metadata JSON
-async function uploadMetadata(json) {
-  const res = await axios.post(PINATA_JSON_URL, json, {
-    headers
-  });
-
-  return res.data.IpfsHash;
+async function pinJson(json, name) {
+  const response = await fetch(pinJsonUrl, { method: 'POST', headers: { ...authHeaders(), 'Content-Type': 'application/json' }, body: JSON.stringify({ pinataContent: json, pinataMetadata: { name } }) });
+  if (!response.ok) throw new Error(`Pinata JSON upload failed (${response.status}): ${await response.text()}`);
+  return (await response.json()).IpfsHash;
 }
-
 async function main() {
-  console.log("====== Uploading NFT Images =======\n");
-
-  const imageFiles = fs.readdirSync(IMAGES_DIR);
-  const imageCIDs = {};
-
-  // 1. Upload Images
-  for (const file of imageFiles) {
-    const filePath = path.join(IMAGES_DIR, file);
-    const cid = await uploadImage(filePath);
-    imageCIDs[file] = cid;
-
-    console.log(`${file} → ipfs://${cid}`);
+  const [imageNames, metadataNames] = await Promise.all([fs.readdir(imagesDir), fs.readdir(metadataDir)]);
+  const orderedMetadata = metadataNames.filter((name) => name.endsWith('.json')).sort((a, b) => tokenIdFromName(a) - tokenIdFromName(b));
+  if (!orderedMetadata.length) throw new Error(`No metadata JSON files found in ${metadataDir}`);
+  const imageCids = new Map();
+  for (const imageName of imageNames.filter((name) => !name.startsWith('.'))) {
+    const cid = await pinFile(path.join(imagesDir, imageName), imageName);
+    imageCids.set(imageName, cid);
+    console.log(`Image ${imageName}: ipfs://${cid}`);
   }
-
-  console.log("\n====== Uploading Metadata =======\n");
-
-  const metadataFiles = fs.readdirSync(METADATA_DIR);
-  const tokenURIs = [];
-
-  // 2️. Upload Metadata
-  for (const file of metadataFiles) {
-    const filePath = path.join(METADATA_DIR, file);
-    let metadata = JSON.parse(fs.readFileSync(filePath));
-
-    const imageFileName = file.replace(".json", ".png");
-    const imageCID = imageCIDs[imageFileName];
-
-    if (!imageCID) {
-      throw new Error(`Image not found for ${file}`);
-    }
-
-    metadata.image = `ipfs://${imageCID}`;
-
-    const metadataCID = await uploadMetadata(metadata);
-    const tokenURI = `ipfs://${metadataCID}`;
-    tokenURIs.push(tokenURI);
-
-    console.log(`${file} → ${tokenURI}`);
+  const records = [];
+  for (const metadataName of orderedMetadata) {
+    const tokenId = tokenIdFromName(metadataName);
+    const imageName = imageFor(metadataName, imageNames);
+    const source = JSON.parse(await fs.readFile(path.join(metadataDir, metadataName), 'utf8'));
+    const imageCid = imageCids.get(imageName);
+    const metadata = { ...source, image: `ipfs://${imageCid}` };
+    const metadataCid = await pinJson(metadata, metadataName);
+    records.push({ tokenId, ...metadata, tokenURI: `ipfs://${metadataCid}` });
+    console.log(`Token ${tokenId}: ipfs://${metadataCid}`);
   }
-
-  console.log("\nALL NFTS UPLOADED SUCCESSFULLY!");
-  console.log("\nFINAL TOKEN URIs:");
-  tokenURIs.forEach((uri, i) => {
-    console.log(`Token ${i + 1}: ${uri}`);
-  });
+  const ids = records.map((record) => record.tokenId);
+  if (new Set(ids).size !== ids.length) throw new Error('Duplicate token ids detected');
+  const output = `// Generated by scripts/uploadToPinata.mjs. Do not edit manually.\nimport type { NFT } from '../types';\n\nconst NFTS: NFT[] = ${JSON.stringify(records, null, 2)};\n\nexport default NFTS;\n`;
+  await fs.writeFile(generatedFile, output, 'utf8');
+  await fs.writeFile(path.join(root, 'nfts', 'pinata-manifest.json'), JSON.stringify(records, null, 2), 'utf8');
+  console.log(`Generated ${generatedFile}`);
 }
-
-main().catch(console.error);
+main().catch((error) => { console.error(error); process.exitCode = 1; });
