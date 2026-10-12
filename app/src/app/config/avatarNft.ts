@@ -1,9 +1,7 @@
 import type { Address } from 'viem';
 
 export const avatarNftAbi = [
-  { type: 'function', name: 'mint', stateMutability: 'nonpayable', inputs: [{ name: 'tokenId', type: 'uint256' }], outputs: [{ type: 'uint256' }] },
-  { type: 'function', name: 'minted', stateMutability: 'view', inputs: [{ name: 'tokenId', type: 'uint256' }], outputs: [{ type: 'bool' }] },
-  { type: 'function', name: 'ownerOf', stateMutability: 'view', inputs: [{ name: 'tokenId', type: 'uint256' }], outputs: [{ type: 'address' }] },
+  { type: 'function', name: 'mint', stateMutability: 'nonpayable', inputs: [{ name: 'tokenUri', type: 'string' }], outputs: [{ name: 'tokenId', type: 'uint256' }] },
 ] as const;
 
 export const deployments: Record<number, { address?: Address; explorer: string; name: string }> = {

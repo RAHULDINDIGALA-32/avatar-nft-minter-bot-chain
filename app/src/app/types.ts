@@ -1,10 +1,10 @@
 export interface Attribute {
   trait_type: string;
-  value: string;
+  value: string | number;
 }
 
 export interface NFT {
-  tokenId: number;
+  catalogId: number;
   name: string;
   description: string;
   image: string;
@@ -26,3 +26,7 @@ export interface NftModalProps {
   isMinting: boolean;
   isConnected: boolean;
 }
+
+
+
+

@@ -1,50 +1,78 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { ConnectButton } from '@rainbow-me/rainbowkit';
-import { useAccount, useChainId, useWaitForTransactionReceipt, useWriteContract, type BaseError } from 'wagmi';
-import { Toaster, toast } from 'react-hot-toast';
+import { useState } from 'react';
+import { Toaster } from 'react-hot-toast';
 import NFTS from './data/nftsData';
-import NFTCard from './components/NftCard';
-import NFTModal from './components/NftModal';
+import { useMint } from './hooks/useMint';
+import { siteConfig } from './lib/site';
+import { Header, NetworkNotice } from './components/Header';
+import Hero from './components/Hero';
+import Gallery from './components/Gallery';
+import Faq from './components/Faq';
 import Footer from './components/Footer';
-import { avatarNftAbi, deployments } from './config/avatarNft';
+import NftModal from './components/NftModal';
 import type { NFT } from './types';
 
 export default function Home() {
-  const { isConnected } = useAccount();
-  const chainId = useChainId();
-  const deployment = deployments[chainId];
-  const [selectedNFT, setSelectedNFT] = useState<NFT | null>(null);
-  const { data: txHash, writeContract, isPending, error } = useWriteContract();
-  const { isSuccess, isLoading: isConfirming } = useWaitForTransactionReceipt({ hash: txHash });
+  const mint = useMint();
+  const [selected, setSelected] = useState<NFT | null>(null);
+  const [scope, setScope] = useState<NFT[]>(NFTS);
+  const [mintingNft, setMintingNft] = useState<NFT | null>(null);
 
-  useEffect(() => {
-    if (isSuccess) { toast.success('NFT minted successfully'); setSelectedNFT(null); }
-    if (error) toast.error((error as BaseError).shortMessage ?? 'Transaction failed');
-  }, [isSuccess, error]);
-
-  function handleMint() {
-    if (!selectedNFT || !isConnected) return;
-    if (!deployment?.address) { toast.error('Connect to BOT Chain Testnet or configure the contract address'); return; }
-    writeContract({ address: deployment.address, abi: avatarNftAbi, functionName: 'mint', args: [BigInt(selectedNFT.tokenId)] });
+  function open(nft: NFT, list: NFT[] = NFTS) {
+    if (mint.status === 'success' || mint.status === 'error') mint.reset();
+    setScope(list);
+    setSelected(nft);
   }
 
+  function step(dir: -1 | 1) {
+    if (!selected || scope.length < 2) return;
+    const i = scope.findIndex((n) => n.catalogId === selected.catalogId);
+    const next = scope[(i + dir + scope.length) % scope.length];
+    if (mint.status === 'success' || mint.status === 'error') mint.reset();
+    setSelected(next);
+  }
+
+  function close() {
+    setSelected(null);
+    if (mint.status === 'success' || mint.status === 'error') mint.reset();
+  }
+
+  const surprise = () => open(NFTS[Math.floor(Math.random() * NFTS.length)]);
+  const networkName = mint.targetChain?.name ?? siteConfig.fallbackNetworkName;
+
   return (
-    <main className="min-h-screen bg-gradient-to-br from-black via-purple-900 to-indigo-900 text-white p-8">
-      <Toaster position="bottom-right" />
-      <header className="flex flex-col md:flex-row items-center justify-between mb-12 gap-6">
-        <div><h1 className="text-4xl font-extrabold tracking-wide">BOT Avatar Collection</h1><p className="text-sm text-white/70 mt-2">One-of-one NFTs on BOT Chain</p></div>
-        <ConnectButton />
-      </header>
-      {!deployment?.address && <p className="mb-6 rounded-lg bg-amber-500/20 p-4 text-amber-200">This network has no configured NFT contract yet.</p>}
-      {NFTS.length === 0 && <p className="rounded-lg bg-white/10 p-6">No NFTs have been uploaded yet. Add assets to <code>nfts/images</code> and metadata to <code>nfts/metadata</code>, then run <code>npm run upload</code>.</p>}
-      <section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-        {NFTS.map((nft) => <NFTCard key={nft.tokenId} nft={nft} isConnected={isConnected} onSelect={setSelectedNFT} />)}
-      </section>
-      {selectedNFT && <NFTModal nft={selectedNFT} onMint={handleMint} onClose={() => setSelectedNFT(null)} isMinting={isPending || isConfirming} isConnected={isConnected} />}
-      {txHash && deployment && <a href={`${deployment.explorer}/tx/${txHash}`} target="_blank" rel="noreferrer" className="block text-center mt-6 text-blue-300 underline">View transaction on BOTScan</a>}
-      <Footer />
-    </main>
+    <>
+      <Toaster
+        position="bottom-center"
+        toastOptions={{
+          style: {
+            background: 'var(--paper)', color: 'var(--ink)', fontWeight: 600,
+            border: '2.5px solid var(--ink)', borderRadius: '12px', boxShadow: '4px 4px 0 var(--ink)',
+          },
+        }}
+      />
+      <Header />
+      <NetworkNotice mint={mint} />
+      <main>
+        <Hero nfts={NFTS} networkName={networkName} onSurprise={surprise} />
+        <Gallery nfts={NFTS} onSelect={open} />
+        <Faq />
+      </main>
+      <Footer explorer={mint.targetDeployment?.explorer} contract={mint.targetDeployment?.address} />
+
+      {selected && (
+        <NftModal
+          nft={selected}
+          index={Math.max(0, scope.findIndex((n) => n.catalogId === selected.catalogId))}
+          total={scope.length}
+          mint={mint}
+          mintingNft={mintingNft}
+          onMint={() => { setMintingNft(selected); mint.mint(selected); }}
+          onClose={close}
+          onStep={step}
+        />
+      )}
+    </>
   );
 }

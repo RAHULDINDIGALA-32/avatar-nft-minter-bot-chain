@@ -8,8 +8,6 @@
     "upload": "node scripts/uploadToPinata.mjs",
     "deploy:testnet": "tsx scripts/deployAvatarNft.ts botTestnet",
     "deploy:mainnet": "tsx scripts/deployAvatarNft.ts botMainnet",
-    "register:testnet": "node scripts/registerCollection.mjs botTestnet",
-    "register:mainnet": "node scripts/registerCollection.mjs botMainnet",
     "test": "hardhat test"
   },
   "repository": {

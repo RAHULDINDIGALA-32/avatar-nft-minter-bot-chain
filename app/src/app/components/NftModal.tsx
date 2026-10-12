@@ -1,107 +1,167 @@
 'use client';
 
-import { useState } from 'react';
-import type { NftModalProps, Attribute } from '../types.ts';
-import { ipfsToHttp } from '../lib/ipfs';
+import { useEffect, useRef } from 'react';
+import { useConnectModal } from '@rainbow-me/rainbowkit';
+import {
+  ArrowTopRightOnSquareIcon, ChevronLeftIcon, ChevronRightIcon, XMarkIcon,
+} from '@heroicons/react/24/outline';
+import type { NFT } from '../types';
+import type { MintApi } from '../hooks/useMint';
+import { getTrait } from '../lib/nft';
+import NftImage from './NftImage';
 
-export default function NFTModal({ nft, onMint, onClose, isMinting, isConnected }: NftModalProps) {
-  const [showAttributes, setShowAttributes] = useState(false);
+interface Props {
+  nft: NFT;
+  index: number;
+  total: number;
+  mint: MintApi;
+  mintingNft: NFT | null;
+  onMint: () => void;
+  onClose: () => void;
+  onStep: (dir: -1 | 1) => void;
+}
+
+function IconButton({ label, onClick, disabled, children }: {
+  label: string; onClick: () => void; disabled?: boolean; children: React.ReactNode;
+}) {
+  return (
+    <button type="button" className="icon-btn" aria-label={label} onClick={onClick} disabled={disabled}>
+      {children}
+    </button>
+  );
+}
+
+function MintAction({ nft, mint, mine, onMint }: { nft: NFT; mint: MintApi; mine: boolean; onMint: () => void }) {
+  const { openConnectModal } = useConnectModal();
+
+  if (!mint.isConnected)
+    return <button className="btn btn-primary w-full" onClick={openConnectModal}>Connect wallet to mint</button>;
+
+  if (mint.wrongNetwork)
+    return (
+      <button className="btn btn-primary w-full" disabled={!mint.targetChain || mint.isSwitching}
+        onClick={() => mint.targetChain && mint.switchNetwork(mint.targetChain.id)}>
+        {mint.targetChain ? `Switch to ${mint.targetChain.name}` : 'Network not supported'}
+      </button>
+    );
+
+  if (mint.isBusy && !mine)
+    return <button className="btn w-full" disabled>Another mint is in progress</button>;
+
+  if (mine && mint.status === 'wallet')
+    return <button className="btn btn-primary w-full" disabled aria-busy><span className="spinner" />Confirm in your wallet</button>;
+
+  if (mine && mint.status === 'confirming')
+    return <button className="btn btn-primary w-full" disabled aria-busy><span className="spinner" />Minting…</button>;
 
   return (
-    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 px-4"
-     onClick={onClose}>
-      <div className="relative bg-gradient-to-br from-black to-purple-900 rounded-2xl px-6 py-5 max-w-md w-full shadow-2xl max-h-[100vh] overflow-y-auto scrollbar-hide"
-      onClick={(e) => e.stopPropagation()}>
+    <button className="btn btn-primary w-full" onClick={onMint}>
+      {mine && mint.status === 'error' ? 'Try again' : `Mint ${nft.name} for free`}
+    </button>
+  );
+}
 
-        {/* 3D Flip Container */}
-        <div className="relative w-full h-[26rem] perspective">
-          <div
-            className={`absolute inset-0 transition-transform duration-700 ease-in-out transform-style-preserve-3d
-              ${showAttributes ? 'rotate-y-180' : ''}
-            `}
-          >
-            {/* Front — NFT Image */}
-            <div className="absolute inset-0 backface-hidden">
-              
-              <img
-                src={ipfsToHttp(nft.image)}
-                alt={nft.name}
-                className="w-full h-full object-cover rounded-xl"
-              />
-            </div>
+export default function NftModal({ nft, index, total, mint, mintingNft, onMint, onClose, onStep }: Props) {
+  const ref = useRef<HTMLDialogElement>(null);
+  const mine = mintingNft?.catalogId === nft.catalogId;
+  const status = mine ? mint.status : 'idle';
+  const walletOpen = mint.status === 'wallet';
+  const explorer = mint.deployment?.explorer ?? mint.targetDeployment?.explorer;
+  const archetype = getTrait(nft, 'Archetype');
 
-            {/* Back — Attributes */}
-            <div className="absolute inset-0 backface-hidden rotate-y-180 rounded-xl bg-black/70 backdrop-blur-md p-4 overflow-y-auto">
-              <h3 className="text-lg font-semibold mb-4 text-center">
-                Attributes
-              </h3>
+  useEffect(() => {
+    const d = ref.current;
+    if (d && !d.open) d.showModal();
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = prev; if (d?.open) d.close(); };
+  }, []);
 
-              <div className="grid grid-cols-2 gap-3">
-                {nft.attributes.map((attr: Attribute, idx: number) => (
-                  <div
-                    key={idx}
-                    className="border border-white/10 rounded-lg p-3 bg-black/40"
-                  >
-                    <p className="text-[11px] uppercase tracking-wider text-gray-400">
-                      {attr.trait_type}
-                    </p>
-                    <p className="text-sm font-medium text-white">
-                      {attr.value}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
+  return (
+    <dialog
+      ref={ref}
+      className="nft-dialog"
+      aria-labelledby="nft-title"
+      onCancel={(e) => { e.preventDefault(); if (!walletOpen) onClose(); }}
+      onClick={(e) => { if (e.target === ref.current && !walletOpen) onClose(); }}
+      onKeyDown={(e) => {
+        if (mint.isBusy) return;
+        if (e.key === 'ArrowLeft') onStep(-1);
+        if (e.key === 'ArrowRight') onStep(1);
+      }}
+    >
+      <div className="grid md:grid-cols-2">
+        <div className="pane-img">
+          <NftImage src={nft.image} alt={`${nft.name}${archetype ? `, ${archetype}` : ''}`} priority />
         </div>
 
-         {/* Toggle Button */}
-        <button
-          onClick={() => setShowAttributes(!showAttributes)}
-          className="absolute bottom-[23vh] right-4  text-xs uppercase tracking-wide text-white/70 hover:text-white transition hover:cursor-pointer rounded-2xl bg-black/40 px-4 py-2"
-        >
-          {showAttributes ? 'NFT' : 'Attributes'}
-        </button>
+        <div className="flex flex-col p-6">
+          <div className="flex items-center justify-between">
+            <p className="muted text-sm">{index + 1} of {total}</p>
+            <div className="flex gap-2">
+              <IconButton label="Previous character" onClick={() => onStep(-1)} disabled={total < 2 || mint.isBusy}>
+                <ChevronLeftIcon className="h-5 w-5" />
+              </IconButton>
+              <IconButton label="Next character" onClick={() => onStep(1)} disabled={total < 2 || mint.isBusy}>
+                <ChevronRightIcon className="h-5 w-5" />
+              </IconButton>
+              <IconButton label="Close" onClick={onClose} disabled={walletOpen}>
+                <XMarkIcon className="h-5 w-5" />
+              </IconButton>
+            </div>
+          </div>
 
-        {/* NFT Info */}
-        <h2 className="text-2xl font-bold mt-5 mb-1">{nft.name}</h2>
-        <p className="text-gray-300 text-sm mb-6">
-          {nft.description}
-        </p>
+          <h2 id="nft-title" className="display mt-5 text-4xl leading-none">{nft.name}</h2>
+          {archetype && <p className="muted mt-2 font-semibold">{archetype}</p>}
+          <p className="mt-4 max-w-[52ch] leading-relaxed">{nft.description}</p>
 
-        {/* Mint Button */}
-        <button
-          onClick={onMint}
-          disabled={isMinting || !isConnected}
-          className="w-full py-3 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 font-bold transition hover:opacity-90 disabled:opacity-50 hover:disabled:cursor-not-allowed hover:cursor-pointer"
-        >
-          {isMinting ? 'Minting...' : 'Mint NFT'}
-        </button>
+          <dl className="mt-5 grid grid-cols-2 gap-2">
+            {nft.attributes.map((a) => (
+              <div key={a.trait_type} className="trait">
+                <dt className="muted text-xs">{a.trait_type}</dt>
+                <dd className="font-semibold">{String(a.value)}</dd>
+              </div>
+            ))}
+          </dl>
 
-        {/* Close */}
-        <button
-          onClick={onClose}
-          className="w-full mt-3 text-gray-400 hover:text-white transition cursor-pointer"
-        >
-          Close
-        </button>
+          <div className="mt-auto pt-7">
+            <p className="sr-only" role="status" aria-live="polite">
+              {status === 'wallet' && 'Confirm the transaction in your wallet.'}
+              {status === 'confirming' && 'Transaction sent. Waiting for confirmation.'}
+              {status === 'success' && 'Mint complete.'}
+            </p>
+
+            {mine && status === 'success' ? (
+              <div className="success">
+                <span className="stamp">Minted</span>
+                <p className="mt-3 font-semibold">
+                  {nft.name} is yours{mint.tokenId !== null ? `, token #${mint.tokenId.toString()}` : ''}.
+                </p>
+                <div className="mt-4 flex flex-wrap gap-3">
+                  {mint.hash && explorer && (
+                    <a className="btn btn-sm" href={`${explorer}/tx/${mint.hash}`} target="_blank" rel="noopener noreferrer">
+                      View transaction <ArrowTopRightOnSquareIcon className="h-4 w-4" />
+                    </a>
+                  )}
+                  <button className="btn btn-sm btn-primary" onClick={mint.reset}>Mint another</button>
+                </div>
+              </div>
+            ) : (
+              <>
+                {mine && status === 'error' && mint.errorMessage && (
+                  <p role="alert" className="alert mb-3">{mint.errorMessage}</p>
+                )}
+                <MintAction nft={nft} mint={mint} mine={mine} onMint={onMint} />
+                <p className="muted mt-3 text-center text-sm">
+                  {mine && status === 'confirming' && mint.hash && explorer ? (
+                    <>Transaction sent. <a className="link" href={`${explorer}/tx/${mint.hash}`} target="_blank" rel="noopener noreferrer">Track it on the explorer</a>.</>
+                  ) : 'Free. You only pay network gas.'}
+                </p>
+              </>
+            )}
+          </div>
+        </div>
       </div>
-
-      {/* Required CSS */}
-      <style jsx>{`
-        .perspective {
-          perspective: 1200px;
-        }
-        .transform-style-preserve-3d {
-          transform-style: preserve-3d;
-        }
-        .backface-hidden {
-          backface-visibility: hidden;
-        }
-        .rotate-y-180 {
-          transform: rotateY(180deg);
-        }
-      `}</style>
-    </div>
+    </dialog>
   );
 }

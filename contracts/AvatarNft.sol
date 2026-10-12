@@ -6,68 +6,35 @@ import {ERC721URIStorage} from "@openzeppelin/contracts/token/ERC721/extensions/
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {Pausable} from "@openzeppelin/contracts/utils/Pausable.sol";
 
-/**
- * @title AvatarNft
- * @author Rahul Dindigala
- * @dev ERC721 token representing unique avatars with URI storage.
- */
+/// @title AvatarNft
+/// @notice Public gas-only ERC-721 minting. There is no wallet cap or supply cap.
 contract AvatarNft is ERC721, ERC721URIStorage, Ownable, Pausable {
-    mapping(uint256 tokenId => string uri) private _registeredUris;
-    mapping(uint256 tokenId => bool) public minted;
+    uint256 private _nextTokenId;
 
-    event TokenRegistered(uint256 indexed tokenId, string uri);
-    event TokenMinted(address indexed recipient, uint256 indexed tokenId, string uri);
+    event TokenMinted(address indexed recipient, uint256 indexed tokenId, string tokenUri);
 
-    constructor(address initialOwner)
-        ERC721("AvatarNft", "ANFT")
-        Ownable(initialOwner)
-    {}
+    constructor(address initialOwner) ERC721("AvatarNft", "ANFT") Ownable(initialOwner) {}
 
-    /// @notice Registers immutable collection metadata before public minting.
-    function registerToken(uint256 tokenId, string calldata uri) external onlyOwner {
-        require(bytes(uri).length > 0, "AvatarNft: empty URI");
-        require(!minted[tokenId], "AvatarNft: already minted");
-        require(bytes(_registeredUris[tokenId]).length == 0, "AvatarNft: already registered");
+    /// @notice Mints a new NFT to the caller for gas only.
+    /// @dev Every call creates a new token ID; no per-wallet or total-supply limit exists.
+    function mint(string calldata tokenUri) external whenNotPaused returns (uint256 tokenId) {
+        require(bytes(tokenUri).length > 0, "AvatarNft: empty URI");
 
-        _registeredUris[tokenId] = uri;
-        emit TokenRegistered(tokenId, uri);
-    }
-
-    /// @notice Mints one registered collection item to the caller.
-    function mint(uint256 tokenId) external returns (uint256) {
-        _requireNotPaused();
-        string memory uri = _registeredUris[tokenId];
-        require(bytes(uri).length > 0, "AvatarNft: token not registered");
-        require(!minted[tokenId], "AvatarNft: already minted");
-
-        minted[tokenId] = true;
+        tokenId = _nextTokenId++;
         _safeMint(msg.sender, tokenId);
-        _setTokenURI(tokenId, uri);
+        _setTokenURI(tokenId, tokenUri);
 
-        emit TokenMinted(msg.sender, tokenId, uri);
-        return tokenId;
+        emit TokenMinted(msg.sender, tokenId, tokenUri);
     }
 
     function pause() external onlyOwner { _pause(); }
     function unpause() external onlyOwner { _unpause(); }
 
-    // The following functions are overrides required by Solidity.
-
     function tokenURI(uint256 tokenId)
-        public
-        view
-        override(ERC721, ERC721URIStorage)
-        returns (string memory)
-    {
-        return super.tokenURI(tokenId);
-    }
+        public view override(ERC721, ERC721URIStorage) returns (string memory)
+    { return super.tokenURI(tokenId); }
 
     function supportsInterface(bytes4 interfaceId)
-        public
-        view
-        override(ERC721, ERC721URIStorage)
-        returns (bool)
-    {
-        return super.supportsInterface(interfaceId);
-    }
+        public view override(ERC721, ERC721URIStorage) returns (bool)
+    { return super.supportsInterface(interfaceId); }
 }
