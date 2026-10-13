@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 
-const artifact = JSON.parse(await fs.readFile('artifacts/contracts/AvatarNft.sol/AvatarNft.json', 'utf8'));
+const artifact = JSON.parse(await fs.readFile('artifacts/contracts/ChainfolkAvatarNft.sol/ChainfolkAvatarNft.json', 'utf8'));
 
-await fs.writeFile('artifacts/AvatarNft.json', JSON.stringify({ abi: artifact.abi, bytecode: artifact.bytecode }, null, 2));
+await fs.writeFile('artifacts/ChainfolkAvatarNft.json', JSON.stringify({ abi: artifact.abi, bytecode: artifact.bytecode }, null, 2));
 
-console.log('Exported artifacts/AvatarNft.json');
+console.log('Exported artifacts/ChainfolkAvatarNft.json');

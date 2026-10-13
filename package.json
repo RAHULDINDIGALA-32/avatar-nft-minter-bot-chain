@@ -1,13 +1,13 @@
 {
-  "name": "nft-minter",
+  "name": "chainfolk-avatar-nft-minter",
   "version": "1.0.0",
   "description": "A DApp on Bot Chain with Next.js, Wagmi, RainbowKit, and Pinata to Mint NFTs on IPFS",
   "main": "index.js",
   "scripts": {
     "compile": "hardhat compile && node scripts/exportArtifact.mjs",
     "upload": "node scripts/uploadToPinata.mjs",
-    "deploy:testnet": "tsx scripts/deployAvatarNft.ts botTestnet",
-    "deploy:mainnet": "tsx scripts/deployAvatarNft.ts botMainnet",
+    "deploy:testnet": "tsx scripts/deployChainfolkAvatarNft.ts botTestnet",
+    "deploy:mainnet": "tsx scripts/deployChainfolkAvatarNft.ts botMainnet",
     "test": "hardhat test"
   },
   "repository": {

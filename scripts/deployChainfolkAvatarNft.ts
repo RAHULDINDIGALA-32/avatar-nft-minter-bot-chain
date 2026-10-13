@@ -4,7 +4,7 @@ import { botMainnet, botTestnet, type BotNetwork } from '../src/networks.js';
 import dotenv from 'dotenv';
 import fs from 'node:fs';
 import path from 'node:path';
-import artifact from '../artifacts/AvatarNft.json';
+import artifact from '../artifacts/ChainfolkAvatarNft.json';
 
 dotenv.config();
 const networkName = process.argv[2] ?? 'botTestnet';
@@ -14,12 +14,13 @@ if (!privateKey) throw new Error('Missing DEPLOYER_PRIVATE_KEY in .env');
 if (!artifact.bytecode || artifact.bytecode === '0x') throw new Error('Missing compiled bytecode. Run npm run compile.');
 const account = privateKeyToAccount(privateKey);
 const client = createWalletClient({ account, chain: network, transport: http(network.rpcUrl) }).extend(publicActions);
+
 async function main() {
   const hash = await client.deployContract({ abi: artifact.abi, bytecode: artifact.bytecode as Hex, args: [account.address] });
   const receipt = await client.waitForTransactionReceipt({ hash });
   if (!receipt.contractAddress) throw new Error('Deployment receipt did not contain a contract address');
-  const deployment = { contractName: 'AvatarNft', address: receipt.contractAddress, chain: network.name, chainId: network.id, abi: artifact.abi, deployedAt: new Date().toISOString() };
-  const fileName = `AvatarNft.${networkName}.json`;
+  const deployment = { contractName: 'ChainfolkAvatarNft', address: receipt.contractAddress, chain: network.name, chainId: network.id, abi: artifact.abi, deployedAt: new Date().toISOString() };
+  const fileName = `ChainfolkAvatarNft.${networkName}.json`;
   for (const directory of ['deployments', 'app/contractDeployments']) {
     fs.mkdirSync(path.join(process.cwd(), directory), { recursive: true });
     fs.writeFileSync(path.join(process.cwd(), directory, fileName), JSON.stringify(deployment, null, 2));

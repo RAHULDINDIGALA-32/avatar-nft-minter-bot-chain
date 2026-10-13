@@ -7,7 +7,7 @@ const ITEMS = [
 
 export default function Faq() {
   return (
-    <section id="faq" className="mx-auto max-w-3xl scroll-mt-20 px-5 pb-16">
+    <section id="faq" className="mx-auto max-w-3xl scroll-mt-30 px-5 pb-16">
       <h2 className="display text-4xl">Questions</h2>
       <div className="mt-6">
         {ITEMS.map(([q, a]) => (

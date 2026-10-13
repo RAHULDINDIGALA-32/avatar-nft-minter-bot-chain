@@ -10,6 +10,7 @@ export interface NFT {
   image: string;
   tokenURI: string;
   attributes: Attribute[];
+  external_url: string
 }
 
 export interface NftCardProps {

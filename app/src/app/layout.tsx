@@ -3,7 +3,7 @@ import "./globals.css";
 import App from './App';
 
 export const metadata: Metadata = {
-  title: "NFT Minter",
+  title: "Chainfolk Avatar NFTs",
   description: "A Next.js app developed using Viem + Wagmi + RainbowKit to mint NFTs.",
 };
 

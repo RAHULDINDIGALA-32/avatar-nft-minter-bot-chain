@@ -7,7 +7,7 @@ import {
 } from 'wagmi';
 import { parseEventLogs, UserRejectedRequestError } from 'viem';
 import { toast } from 'react-hot-toast';
-import { avatarNftAbi, deployments } from '../config/avatarNft';
+import { chainfolkAvatarNftAbi, deployments } from '../config/chainfolkAvatarNft';
 import type { NFT } from '../types';
 
 const transferAbi = [{
@@ -70,7 +70,7 @@ export function useMint() {
 
   function mint(nft: NFT) {
     if (!deployment?.address) return;
-    writeContract({ address: deployment.address, abi: avatarNftAbi, functionName: 'mint', args: [nft.tokenURI] });
+    writeContract({ address: deployment.address, abi: chainfolkAvatarNftAbi, functionName: 'mint', args: [nft.tokenURI] });
   }
 
   return {
