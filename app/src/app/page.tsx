@@ -61,7 +61,7 @@ export default function Home() {
         <Gallery nfts={NFTS} onSelect={open} />
         <Faq />
       </main>
-      <Footer networkName={networkName} explorer={mint.deployment?.explorer} contract={mint.deployment?.address} />
+      <Footer explorer={mint.deployment?.explorer} contract={mint.deployment?.address} />
 
       {selected && (
         <NftModal

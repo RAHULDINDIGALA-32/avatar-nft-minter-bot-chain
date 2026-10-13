@@ -1,17 +1,24 @@
 //import { HeartIcon } from '@heroicons/react/24/solid';
+import Image from 'next/image';
 import { siteConfig } from '../lib/site';
 
-export default function Footer({ networkName, explorer, contract }: { networkName: string; explorer?: string; contract?: string }) {
+export default function Footer({ explorer, contract }: { explorer?: string; contract?: string }) {
   return (
     <footer className="bd-t bg-paper-2">
       <div className="mx-auto flex max-w-6xl flex-col gap-6 px-5 py-8 text-sm sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p>
-          Built by <a className="link" href={siteConfig.githubUrl} target="_blank" rel="noopener noreferrer">{siteConfig.authorName}</a>
+            Built by <a className="link" href={siteConfig.githubUrl} target="_blank" rel="noopener noreferrer">{siteConfig.authorName}</a>
           </p>
-          <p className="muted mt-2">Network: {networkName}</p>
-          <a className="mt-3 inline-flex items-center gap-2 font-bold" href={siteConfig.botChainUrl} target="_blank" rel="noopener noreferrer" aria-label="BOT Chain website">
-            <span className="logo-mark" aria-hidden="true" />
+          <a className="inline-flex items-center gap-2 font-bold -ml-4" href={siteConfig.botChainUrl} target="_blank" rel="noopener noreferrer" aria-label="BOT Chain website">
+            <Image
+              src="/chainfolks-logo-trans.png"
+              alt=""
+              width={80}
+              height={80}
+              priority
+              className="h-16 w-16 object-contain"
+            />
             <span>Built on BOT Chain</span>
           </a>
         </div>

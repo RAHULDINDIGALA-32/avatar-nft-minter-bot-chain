@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { siteConfig } from '../lib/site';
 import type { MintApi } from '../hooks/useMint';
@@ -8,8 +9,19 @@ export function Header() {
   return (
     <header className="bg-paper bd-b sticky top-0 z-40">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-3">
-        <a href="#top" className="flex items-center gap-3" aria-label={`${siteConfig.name} home`}>
-          <span className="logo-mark" aria-hidden />
+        <a
+          href="#top"
+          className="flex items-center gap-2"
+          aria-label={`${siteConfig.name} home`}
+        >
+          <Image
+            src="/chainfolks-logo-trans.png"
+            alt="chainfolks-logo"
+            width={80}
+            height={80}
+            priority
+            className="h-20 w-20 object-contain"
+          />
           <span className="display text-2xl">{siteConfig.name}</span>
         </a>
         <nav aria-label="Sections" className="hidden items-center gap-7 sm:flex">
