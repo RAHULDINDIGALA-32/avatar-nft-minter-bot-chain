@@ -10,7 +10,7 @@ import { defineChain } from 'viem';
 
 
 export const botTestnet = defineChain({ id: 968, name: 'BOT Chain Testnet', nativeCurrency: { name: 'BOT', symbol: 'BOT', decimals: 18 }, rpcUrls: { default: { http: ['https://rpc.bohr.life'] } }, blockExplorers: { default: { name: 'BOTScan', url: 'https://scan.bohr.life' } } });
-export const botMainnet = defineChain({ id: 677, name: 'BOT Chain', nativeCurrency: { name: 'BOT', symbol: 'BOT', decimals: 18 }, rpcUrls: { default: { http: ['https://rpc.botchain.ai'] } }, blockExplorers: { default: { name: 'BOTScan', url: 'https://scan.botchain.ai' } } });
+export const botMainnet = defineChain({ id: 677, name: 'BOT Chain Mainnet', nativeCurrency: { name: 'BOT', symbol: 'BOT', decimals: 18 }, rpcUrls: { default: { http: ['https://rpc.botchain.ai'] } }, blockExplorers: { default: { name: 'BOTScan', url: 'https://scan.botchain.ai' } } });
 
 const walletConnectProjectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID;
 if (!walletConnectProjectId || walletConnectProjectId === '00000000000000000000000000000000') {
@@ -20,7 +20,7 @@ if (!walletConnectProjectId || walletConnectProjectId === '000000000000000000000
 const config = getDefaultConfig({
   appName: 'Chainfolk Avatar NFTs',
   projectId: walletConnectProjectId,
-  chains: [botTestnet, botMainnet],
+  chains: [botMainnet, botTestnet],
   ssr: true,
 });
 

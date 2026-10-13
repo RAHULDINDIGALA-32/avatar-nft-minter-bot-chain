@@ -29,6 +29,7 @@ export function useMint() {
   const { switchChain, isPending: isSwitching } = useSwitchChain();
 
   const deployment = deployments[chainId];
+  const activeChain = chains.find((c) => c.id === chainId);
   const targetChain = chains.find((c) => deployments[c.id]?.address);
   const targetDeployment = targetChain ? deployments[targetChain.id] : undefined;
   const wrongNetwork = isConnected && !deployment?.address;
@@ -76,7 +77,7 @@ export function useMint() {
   return {
     status, hash, tokenId, errorMessage, mint, reset,
     isBusy: status === 'wallet' || status === 'confirming',
-    isConnected, wrongNetwork, deployment, targetChain, targetDeployment,
+    isConnected, wrongNetwork, deployment, activeChain, targetChain, targetDeployment,
     switchNetwork: (id: number) => switchChain({ chainId: id }), isSwitching,
   };
 }

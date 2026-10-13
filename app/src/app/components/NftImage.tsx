@@ -1,6 +1,6 @@
  'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useSyncExternalStore } from 'react';
 import { ipfsToHttp } from '../lib/ipfs';
 
 export default function NftImage({
@@ -14,40 +14,40 @@ export default function NftImage({
   priority?: boolean;
   className?: string;
 }) {
-  const [loaded, setLoaded] = useState(false);
+  const mounted = useSyncExternalStore(
+    () => () => undefined,
+    () => true,
+    () => false,
+  );
   const [error, setError] = useState(false);
 
   const imageSrc = ipfsToHttp(src);
-
-  useEffect(() => {
-    setLoaded(false);
-    setError(false);
-  }, [imageSrc]);
 
   return (
     <div
       className={`bg-bone relative aspect-square overflow-hidden ${className}`}
     >
-      {!loaded && !error && (
-        <div className="bg-bone absolute inset-0 animate-pulse" />
-      )}
-
-      {error ? (
-        <p className="muted absolute inset-0 grid place-items-center p-4 text-center text-sm">
-          Image unavailable. Reload to retry.
-        </p>
+      {!mounted ? (
+        <div className="absolute inset-0 animate-pulse bg-bone" aria-hidden="true" />
+      ) : error ? (
+        <div className="absolute inset-0 grid place-items-center p-4 text-center text-sm">
+          Image unavailable
+          <button
+            type="button"
+            onClick={() => setError(false)}
+            className="underline"
+          >
+            Retry
+          </button>
+        </div>
       ) : (
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={imageSrc}
           alt={alt}
           loading={priority ? 'eager' : 'lazy'}
-          decoding="async"
-          onLoad={() => setLoaded(true)}
           onError={() => setError(true)}
-          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-200 ${
-            loaded ? 'opacity-100' : 'opacity-0'
-          }`}
+          className="block h-full w-full object-cover"
         />
       )}
     </div>

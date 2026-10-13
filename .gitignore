@@ -78,6 +78,13 @@ web_modules/
 .next
 out
 
+# Hardhat generated output
+**/artifacts/
+**/cache/
+
+# Generated Pinata upload manifest
+/nfts/pinata-manifest.json
+
 # Nuxt.js build / generate output
 .nuxt
 dist
@@ -149,6 +156,6 @@ vite.config.ts.timestamp-*
 .turbo
 
 
-#dev files
-**/nfts/
+# Local development-only files
 **/temp.py
+**/nfts

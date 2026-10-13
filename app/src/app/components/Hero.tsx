@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import type { NFT } from '../types';
 import NftImage from './NftImage';
 
@@ -10,6 +11,8 @@ const FAN = [
 export default function Hero({ nfts, networkName, onSurprise }: {
   nfts: NFT[]; networkName: string; onSurprise: () => void;
 }) {
+  const featuredNfts = useMemo(() => nfts.slice(0, 3), [nfts]);
+
   const facts = [
     { k: 'Price', v: 'Free, gas only' },
     { k: 'Network', v: networkName },
@@ -34,7 +37,7 @@ export default function Hero({ nfts, networkName, onSurprise }: {
 
         {nfts.length > 0 && (
           <div className="relative mx-auto h-[20rem] w-full max-w-md sm:h-[25rem]" aria-hidden>
-            {nfts.slice(0, 3).map((nft, i) => (
+            {featuredNfts.slice(0, 3).map((nft, i) => (
               <div
                 key={nft.catalogId}
                 className="fan-print absolute w-[56%]"

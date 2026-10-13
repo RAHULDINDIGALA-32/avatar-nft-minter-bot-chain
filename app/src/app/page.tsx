@@ -39,7 +39,9 @@ export default function Home() {
   }
 
   const surprise = () => open(NFTS[Math.floor(Math.random() * NFTS.length)]);
-  const networkName = mint.targetChain?.name ?? siteConfig.fallbackNetworkName;
+  const networkName = mint.isConnected
+    ? mint.activeChain?.name ?? 'Unsupported network'
+    : mint.targetChain?.name ?? siteConfig.fallbackNetworkName;
 
   return (
     <>
@@ -59,7 +61,7 @@ export default function Home() {
         <Gallery nfts={NFTS} onSelect={open} />
         <Faq />
       </main>
-      <Footer explorer={mint.targetDeployment?.explorer} contract={mint.targetDeployment?.address} />
+      <Footer networkName={networkName} explorer={mint.deployment?.explorer} contract={mint.deployment?.address} />
 
       {selected && (
         <NftModal
