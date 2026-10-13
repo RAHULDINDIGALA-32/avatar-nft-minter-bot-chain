@@ -33,7 +33,7 @@ const WagmiProviderWrapper = ({ children }: { children: React.ReactNode }) => {
         <RainbowKitProvider
           modalSize="wide"
           theme={darkTheme()}
-          initialChain={botTestnet}
+          initialChain={botMainnet}
         >
           {children}
         </RainbowKitProvider>
