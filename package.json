@@ -8,6 +8,8 @@
     "upload": "node scripts/uploadToPinata.mjs",
     "deploy:testnet": "tsx scripts/deployChainfolkAvatarNft.ts botTestnet",
     "deploy:mainnet": "tsx scripts/deployChainfolkAvatarNft.ts botMainnet",
+    "verify:mainnet": "hardhat run scripts/verifyChainfolkAvatarNft.cjs --network bot-chain",
+    "verify:testnet": "hardhat run scripts/verifyChainfolkAvatarNft.cjs --network bot-chain-testnet",
     "test": "hardhat test"
   },
   "repository": {
@@ -31,11 +33,12 @@
     "viem": "^2.42.1"
   },
   "devDependencies": {
-    "hardhat": "^2.22.18",
+    "@nomicfoundation/hardhat-verify": "^2.1.3",
     "@types/node": "^25.0.2",
+    "hardhat": "^2.22.18",
     "ts-node": "^10.9.2",
-    "typescript": "^5.9.3",
-    "tsx": "^4.19.2"
+    "tsx": "^4.19.2",
+    "typescript": "^5.9.3"
   },
   "types": "module"
 }

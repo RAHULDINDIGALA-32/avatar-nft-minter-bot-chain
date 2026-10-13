@@ -143,6 +143,24 @@ NEXT_PUBLIC_CHAINFOLK_MAINNET_CONTRACT_ADDRESS=0x...
 
 Testnet and mainnet have independent contracts, token IDs, and state. A contract name cannot be changed after deployment; a renamed contract requires a new deployment.
 
+## Contract verification
+
+The project uses the official Hardhat verification plugin with BOTScan's Blockscout-compatible API. The contract source includes the SPDX `MIT` license identifier, and the compiler settings in `hardhat.config.cjs` match the deployment: Solidity `0.8.27` with the optimizer enabled for `200` runs.
+
+Verify the deployed contracts after compiling from the repository root:
+
+```bash
+npm run verify:mainnet
+npm run verify:testnet
+```
+
+The verification helper reads the deployment record and derives the `initialOwner` constructor argument from the recorded contract-creation transaction. It does not print or pass a private key to the explorer. Set `BOT_CHAIN_MAINNET_DEPLOY_TXN_HASH` and `BOT_CHAIN_TESTNET_DEPLOY_TXN_HASH` in the root `.env`, or provide the public `DEPLOYER_ADDRESS` instead.
+
+Verification links:
+
+- [ChainfolkAvatarNft on BOT Chain mainnet](https://scan.botchain.ai/address/0x24238897439b1ae07cb1a576ce2d9b26d12e8868)
+- [ChainfolkAvatarNft on BOT Chain testnet](https://scan.bohr.life/address/0xb5b8f468f22a78462726c82f70175bb067148b0b)
+
 ## Run the frontend
 
 From `app/`:
